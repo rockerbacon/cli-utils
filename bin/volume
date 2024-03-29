@@ -4,6 +4,11 @@ get_current_volume() {
 	pactl get-sink-volume $(pactl get-default-sink) | grep -oE '[0-9]+%' | head -n 1 | sed 's/%//'
 }
 
-pactl set-sink-volume $(pactl get-default-sink) $1
-sleep 0.05
-timeout 0.1 speaker-test -t sine -f 500 -l 1
+pactl set-sink-volume $(pactl get-default-sink) "$1"
+
+nid_file=/var/run/user/$UID/volume.nid
+if [ -f "$nid_file" ]; then
+	notify-send --expire-time=1000 --print-id --replace-id $(cat "$nid_file") --hint="int:value:$(get_current_volume)" "🔊" > "$nid_file"
+else
+	notify-send --expire-time=1000 --print-id --hint="int:value:$(get_current_volume)" "🔊" > "$nid_file"
+fi
