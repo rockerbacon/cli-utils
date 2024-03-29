@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "$PWD" > ~/.var/pwd.txt
+echo "Saved current working directory"

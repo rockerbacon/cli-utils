@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+configdir=${XDG_CONFIG_HOME-$HOME/.config}
+
+if [ -f "$configdir/user-dirs.dirs" ]; then
+	source "$configdir/user-dirs.dirs"
+fi
+picdir=${XDG_PICTURES_DIR-$HOME/Images}
+printdir=$picdir/Screenshots
+
+mkdir -p "$printdir"
+
+printout=$printdir/$(date +'%FT%T.%N').png
+
+notify() {
+	notify-send "Screenshot" "Saved in '$(dirname "$printout" | sed "s@$HOME@~@")'"
+}
+
+printmode=${1-area}
+case "$printmode" in
+	area)
+		slurp | grim -t png -c -g - "$printout" && notify
+	;;
+	fullscreen)
+		grim -t png -c "$printout" && notify
+	;;
+esac

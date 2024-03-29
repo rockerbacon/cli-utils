@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+cmds=( \
+	"splith" \
+	"exec foot" \
+	"exec foot" \
+	"focus left" \
+	"splitv" \
+	"exec foot" \
+	"resize shrink width 360px" \
+)
+
+for cmd in "${cmds[@]}"; do
+	swaymsg "$cmd"
+	sleep 0.075
+done
