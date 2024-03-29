@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+appname=${@?Missing app name}
+
+if [ "$appname" == "-" ]; then
+	read -r appname
+fi
+
+bash "$HOME/.var/applist/$appname"

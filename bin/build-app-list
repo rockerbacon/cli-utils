@@ -1,0 +1,66 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use File::Find;
+
+my @appdirs = (
+	"$ENV{HOME}/.local/share/applications",
+	"/usr/share/applications",
+	"/var/lib/flatpak/exports/share/applications",
+);
+
+my $applist_dir = "$ENV{HOME}/.var/applist";
+
+sub build_entry {
+	if (! /\.desktop$/) { return 0; }
+
+	open (my $fd, "<", "$File::Find::name");
+
+	my $name="";
+	my $hidden="";
+	my $no_display="";
+	my $cmd="";
+	while(<$fd>) {
+		$_ =~ s/\n$//;
+		if (/^Name=/ && !$name) {
+			$name=$_;
+		} elsif (/^Exec=/ && !$cmd) {
+			$cmd=$_;
+		} elsif (/^NoDisplay=/i) {
+			$no_display=$_
+		} elsif (/^Hidden=/i) {
+			$hidden=$_
+		}
+	}
+
+	$name =~ s/^Name=//;
+
+	$cmd =~ s/^Exec=//;
+	$cmd =~ s/(\@\@u|\%u|%f|\@\@)//ig;
+	$cmd =~ s/\s+$//;
+
+	$no_display =~ s/^NoDisplay=//;
+	if (!$no_display) {
+		$no_display="false";
+	}
+
+	$hidden =~ s/^Hidden=//;
+	if (!$hidden) {
+		$hidden="false";
+	}
+
+	if ($name && $cmd && $no_display eq "false" && $hidden eq "false") {
+		if (! -f "$applist_dir/$name") {
+			open(my $fd, ">", "$applist_dir/$name") or die "$!";
+			print $fd "$cmd\n";
+			close($fd);
+		}
+	}
+}
+
+system "rm -rf '$applist_dir'";
+mkdir($applist_dir);
+foreach (@appdirs) {
+	find(\&build_entry, $_);
+}

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+ls --sort=time --time=atime --color=never -1 "$HOME/.var/applist/"
