@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+notifications-enabled >/dev/null
+notif_enabled=$?
+
+if [ "$notif_enabled" == "0" ]; then
+	makoctl mode -a do-not-disturb >/dev/null
+	echo "Notifications disabled"
+else
+	makoctl mode -r do-not-disturb >/dev/null
+	echo "Notifications enabled"
+fi
+
+notif_sock=/var/run/user/$UID/notif-toggle.sock
+if [ -S "$notif_sock" ]; then
+	echo "$notif_enabled" | nc --send-only -uU "$notif_sock"
+fi

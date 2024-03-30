@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+makoctl mode | grep -o do-not-disturb
+if [ "$?" == "0" ]; then
+	echo "Notifications disabled"
+	exit 1
+else
+	echo "Notifications enabled"
+	exit 0
+fi
