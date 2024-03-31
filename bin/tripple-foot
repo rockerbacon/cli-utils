@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 
+workdir=$(gpwd)
+
+footcmd="exec -- foot -D '$workdir'"
 cmds=( \
 	"splith" \
-	"exec foot" \
-	"exec foot" \
+	"$footcmd" \
+	"$footcmd nvim ." \
 	"focus left" \
 	"splitv" \
-	"exec foot" \
+	"$footcmd" \
 	"resize shrink width 360px" \
+	"focus up" \
+	"focus right" \
 )
 
 for cmd in "${cmds[@]}"; do
-	swaymsg "$cmd"
+	swaymsg $cmd
 	sleep 0.075
 done
