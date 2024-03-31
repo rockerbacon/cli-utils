@@ -3,25 +3,6 @@
 from json import JSONDecoder
 from subprocess import DEVNULL, PIPE, Popen
 
-# modes=$(makoctl mode)
-#
-# if [[ "$modes" =~ 'notif-center' ]]; then
-# 	makoctl dismiss -a
-# 	makoctl mode -r 'notif-center' >/dev/null
-# 	exit 0
-# fi
-#
-# if [[ "$modes" =~ 'do-not-disturb' ]]; then
-# 	makoctl mode -r 'do-not-disturb' >/dev/null
-# fi
-#
-# makoctl mode -a 'notif-center' >/dev/null
-# # TODO replay notifications from history
-# # makoctl restore
-# # for i in {1..10}; do 
-# # 	makoctl restore
-# # done
-
 def makoctl(*args, stdout=DEVNULL):
 	cmdline = ["makoctl"]
 	for a in args:
@@ -52,8 +33,10 @@ def main():
 		makoctl("history", stdout=PIPE).stdout.read().decode('utf-8')
 	)
 
-	# print(history)
 	for notif in history["data"][0][-10:]:
+		if notif["category"]["data"] == "sysinfo":
+			continue
+
 		cmdline = [
 			"notify-send",
 			"--replace-id",

@@ -19,5 +19,5 @@ function read_stats() {
 }
 
 read_stats | while read -r stat; do
-	notify-send "$stat"
+	notify-send --category 'sysinfo' "$stat"
 done
