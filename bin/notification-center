@@ -1,57 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env bash
 
-from json import JSONDecoder
-from subprocess import DEVNULL, PIPE, Popen
+existing_center=$(swaymsg --pretty -t get_tree | grep 'app_id: "notification-center"')
 
-def makoctl(*args, stdout=DEVNULL):
-	cmdline = ["makoctl"]
-	for a in args:
-		cmdline.append(a)
-
-	prog = Popen(cmdline, stdout=stdout)
-	if stdout == DEVNULL:
-		prog.wait()
-
-	return prog
-
-def list_modes():
-	cmd = makoctl("mode", stdout=PIPE)
-	return [x[:-1].decode('utf-8') for x in cmd.stdout];
-
-def main():
-	modes = list_modes()
-
-	makoctl("dismiss", "-a")
-
-	if "notif-center" in modes:
-		makoctl("mode", "-r", "notif-center")
-		return
-
-	makoctl("mode", "-a", "notif-center")
-	
-	history = JSONDecoder().decode(
-		makoctl("history", stdout=PIPE).stdout.read().decode('utf-8')
-	)
-
-	for notif in history["data"][0][-10:]:
-		if notif["category"]["data"] == "sysinfo":
-			continue
-
-		cmdline = [
-			"notify-send",
-			"--replace-id",
-			str(notif["id"]["data"])
-		]
-
-		if notif["app-icon"]["data"]:
-			cmdline.append("--icon")
-			cmdline.append(notif["app-icon"]["data"])
-
-		cmdline.append(notif["summary"]["data"])
-		if notif["body"]["data"]:
-			cmdline.append(notif["body"]["data"])
-
-		Popen(cmdline).wait()
-
-if __name__ == '__main__':
-	main()
+if [ -n "$existing_center" ]; then
+	pid=$(echo "$existing_center" | grep -oP 'pid: [0-9]+' | sed 's/pid: //')
+	kill -15 "$pid"
+else
+	foot --app-id="notification-center" bash -c 'less -R <<<"$(notification-history)"'
+fi

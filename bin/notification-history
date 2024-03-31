@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+from json import JSONDecoder
+from subprocess import PIPE, Popen
+
+NORMAL="\033[0m"
+BOLD="\033[1m"
+FAINT="\033[2m"
+
+def main():
+	history = JSONDecoder().decode(
+		Popen(["makoctl", "history"], stdout=PIPE).stdout.read().decode('utf-8')
+	)
+
+	for notif in history["data"][0]:
+		if notif["category"]["data"] == "sysinfo":
+			continue
+
+		print(FAINT, "-" * 32, NORMAL, sep='')
+		print(BOLD, notif["summary"]["data"], NORMAL, sep='')
+		if notif["body"]["data"]:
+			print(notif["body"]["data"])
+		print()
+		print(FAINT, "\tfrom:", notif["app-name"]["data"], NORMAL)
+		print()
+
+if __name__ == '__main__':
+	main()
