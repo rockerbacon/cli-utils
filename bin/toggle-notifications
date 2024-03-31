@@ -11,7 +11,7 @@ else
 	echo "Notifications enabled"
 fi
 
-notif_sock=/var/run/user/$UID/notif-toggle.sock
+notif_sock=${XDG_RUNTIME_DIR-/tmp}/notif-toggle.sock
 if [ -S "$notif_sock" ]; then
 	echo "$notif_enabled" | nc --send-only -uU "$notif_sock"
 fi

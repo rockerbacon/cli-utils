@@ -6,7 +6,7 @@ get_current_volume() {
 
 pactl set-sink-volume $(pactl get-default-sink) "$1"
 
-nid_file=/var/run/user/$UID/volume.nid
+nid_file=${XDG_RUNTIME_DIR-/tmp}/volume.nid
 if [ -f "$nid_file" ]; then
 	notify-send --category 'sysinfo' --expire-time=1000 --print-id --replace-id $(cat "$nid_file") --hint="int:value:$(get_current_volume)" "🔊" > "$nid_file"
 else
