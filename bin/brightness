@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+get_current_lvl() {
+	brightnessctl -P g
+}
+
+brightnessctl s "$1"
+
+nid_file=${XDG_RUNTIME_DIR-/tmp}/brightness.nid
+if [ -f "$nid_file" ]; then
+	notify-send --category 'sysinfo' --expire-time=1000 --print-id --replace-id $(cat "$nid_file") --hint="int:value:$(get_current_lvl)" "☀️" > "$nid_file"
+else
+	notify-send --category 'sysinfo' --expire-time=1000 --print-id --hint="int:value:$(get_current_lvl)" "☀️" > "$nid_file"
+fi
