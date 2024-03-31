@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
+existing_nm=$(swaymsg --pretty -t get_tree | grep 'app_id: "nmtui"')
 
-foot nmtui
+if [ -n "$existing_nm" ]; then
+	pid=$(echo "$existing_nm" | grep -oP 'pid: [0-9]+' | sed 's/pid: //')
+	kill -15 "$pid"
+else
+	foot --app-id="nmtui" nmtui
+fi
