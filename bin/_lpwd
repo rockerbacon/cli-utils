@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-cd "$(cat ~/.var/pwd.txt)"

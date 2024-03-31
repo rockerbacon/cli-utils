@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if [ -f "$HOME/.var/pwd.txt" ]; then
+	cat "$HOME/.var/pwd.txt"
+else
+	echo "$HOME"
+fi
