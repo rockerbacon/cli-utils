@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+appid=$1
+program=$2
+
+running_app=$(swaymsg --pretty -t get_tree | grep "app_id: \"$appid\"")
+
+if [ -n "$running_app" ]; then
+	pid=$(echo "$running_app" | grep -oP 'pid: [0-9]+' | sed 's/pid: //')
+	kill -15 "$pid"
+else
+	foot --app-id="$appid" bash -c "less -R <<<\"\$($program)\""
+fi
