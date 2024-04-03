@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+sysfs=/sys/class/power_supply
+
+ls --color=never "$sysfs" | \
+while read -r bat; do
+	capacity=''
+	if [ -e "$sysfs/$bat/capacity" ]; then
+		capacity=$(cat "$sysfs/$bat/capacity")%
+	elif [ -e "$sysfs/$bat/capacity_level" ]; then
+		capacity=$(cat "$sysfs/$bat/capacity_level")
+	fi
+
+	if [ -n "$capacity" ]; then
+		model=$(cat "$sysfs/$bat/model_name")
+		echo "$model: $capacity"
+	fi
+done
