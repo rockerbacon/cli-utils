@@ -1,10 +1,3 @@
 #!/usr/bin/env bash
 
-existing_center=$(swaymsg --pretty -t get_tree | grep 'app_id: "notification-center"')
-
-if [ -n "$existing_center" ]; then
-	pid=$(echo "$existing_center" | grep -oP 'pid: [0-9]+' | sed 's/pid: //')
-	kill -15 "$pid"
-else
-	foot --app-id="notification-center" bash -c 'less -R <<<"$(notification-history)"'
-fi
+popup 'notification-center' 'notification-history'
