@@ -6,7 +6,7 @@ footcmd="exec -- foot -D '$workdir'"
 cmds=( \
 	"splith" \
 	"$footcmd" \
-	"$footcmd nvim ." \
+	"$footcmd bash -c 'nvim .; bash'" \
 	"focus left" \
 	"splitv" \
 	"$footcmd" \
