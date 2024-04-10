@@ -4,6 +4,9 @@ echo -n "This operation cannot be undone. Are you sure you want to proceed? (y/N
 read -r confirmation
 case "$confirmation" in
 	y*)
-		rm "$@"
+		rm -v "$@"
+	;;
+	*)
+		echo "Operation cancelled"
 	;;
 esac
