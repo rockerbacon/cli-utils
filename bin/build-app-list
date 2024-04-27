@@ -12,6 +12,8 @@ my @appdirs = (
 
 my $applist_dir = "$ENV{HOME}/.var/applist";
 
+our %processed_apps;
+
 sub build_entry {
 	if (! /\.desktop$/) { return 0; }
 
@@ -20,6 +22,10 @@ sub build_entry {
 	my $appid = $File::Find::name;
 	$appid =~ m/([\w.]+)\.desktop$/i;
 	$appid = $1;
+
+	if (defined $processed_apps{$appid}) {
+		return;
+	}
 
 	my $name="";
 	my $hidden="";
@@ -43,6 +49,11 @@ sub build_entry {
 
 	$name =~ s/^Name=//;
 
+	if (-f "$applist_dir/$name") {
+		print STDERR "WARN: skipping app name conflict on '$appid': '$name'\n";
+		return;
+	}
+
 	$cmd =~ s/^Exec=//;
 	$cmd =~ s/(\@\@u|\%u|%f|\@\@)//ig;
 	$cmd =~ s/\s+$//;
@@ -62,20 +73,25 @@ sub build_entry {
 		$term="false";
 	}
 
-	if ($name && $cmd && $no_display eq "false" && $hidden eq "false") {
-		if (! -f "$applist_dir/$name") {
-			open(my $fd, ">", "$applist_dir/$name") or die "$!";
-			if ($term eq "false") {
-				print $fd "$cmd\n";
-			} else {
-				print $fd "foot --app-id='$appid' $cmd\n";
-			}
-			close($fd);
+	if (
+		$name &&
+		$cmd &&
+		$no_display eq "false" &&
+		$hidden eq "false"
+	) {
+		open(my $fd, ">", "$applist_dir/$name") or die "$!";
+		if ($term eq "false") {
+			print $fd "$cmd\n";
+		} else {
+			print $fd "foot --app-id='$appid' $cmd\n";
 		}
+		close($fd);
 	}
+
+	$processed_apps{$appid} = 1;
 }
 
-system "rm -rf '$applist_dir'";
+system "rm -rf '$applist_dir'/*";
 mkdir($applist_dir);
 foreach (@appdirs) {
 	find(\&build_entry, $_);
