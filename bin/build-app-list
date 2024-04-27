@@ -17,10 +17,15 @@ sub build_entry {
 
 	open (my $fd, "<", "$File::Find::name");
 
+	my $appid = $File::Find::name;
+	$appid =~ m/([\w.]+)\.desktop$/i;
+	$appid = $1;
+
 	my $name="";
 	my $hidden="";
 	my $no_display="";
 	my $cmd="";
+	my $term="";
 	while(<$fd>) {
 		$_ =~ s/\n$//;
 		if (/^Name=/ && !$name) {
@@ -28,9 +33,11 @@ sub build_entry {
 		} elsif (/^Exec=/ && !$cmd) {
 			$cmd=$_;
 		} elsif (/^NoDisplay=/i) {
-			$no_display=$_
+			$no_display=$_;
 		} elsif (/^Hidden=/i) {
-			$hidden=$_
+			$hidden=$_;
+		} elsif (/^Terminal=/i) {
+			$term=$_;
 		}
 	}
 
@@ -50,10 +57,19 @@ sub build_entry {
 		$hidden="false";
 	}
 
+	$term =~ s/^Terminal=//;
+	if (!$term) {
+		$term="false";
+	}
+
 	if ($name && $cmd && $no_display eq "false" && $hidden eq "false") {
 		if (! -f "$applist_dir/$name") {
 			open(my $fd, ">", "$applist_dir/$name") or die "$!";
-			print $fd "$cmd\n";
+			if ($term eq "false") {
+				print $fd "$cmd\n";
+			} else {
+				print $fd "foot --app-id='$appid' $cmd\n";
+			}
 			close($fd);
 		}
 	}
