@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+webapp_dir="$HOME/.local/share/applications/webapps"
+
+appid=${1?Missing appid}
+appname=${2?Missing app name}
+url=${3?Missing URL}
+
+entry=$webapp_dir/${appid}.desktop
+if [ -f "$entry" ]; then
+	echo "ERROR: conflicting appid" >&2
+	exit 1
+fi
+
+mkdir -p "$webapp_dir"
+
+cat <<EOF > "$entry"
+[Desktop Entry]
+Name=$appname
+Exec=firefox -P webapps --new-window '$url'
+EOF

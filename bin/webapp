@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+cmd=$1
+shift
+
+case "$cmd" in
+	add)
+		webapp-add "$@"
+	;;
+	list)
+		webapp-list "$@"
+	;;
+	remove)
+		webapp-remove "$@"
+	;;
+esac

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+webapp_dir="$HOME/.local/share/applications/webapps"
+
+restore_ifs=$IFS
+IFS=$'\n'
+list=($(ls --color=never -1 "$webapp_dir" 2>/dev/null))
+IFS=$restore_ifs
+
+if [ -z "$list" ]; then
+	echo "No webapps"
+	exit 0
+fi
+
+for entry in "${list[@]}"; do
+	id=${entry%.desktop}
+	contents=$(cat "$webapp_dir/$entry")
+	name=$(echo "$contents" | grep 'Name=' | sed 's/Name=//')
+	url=$(echo "$contents" | grep -oP "http(s)?://[^']+")
+	echo "appid: $id"
+	echo -e "\tname: ${name}"
+	echo -e "\turl: ${url}"
+done
