@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
 if [ -f "$HOME/.var/pwd.txt" ]; then
-	cat "$HOME/.var/pwd.txt"
+	dir=$(cat "$HOME/.var/pwd.txt")
+	if [ -d "$dir" ]; then
+		echo "$dir"
+	else
+		echo "$HOME"
+	fi
 else
 	echo "$HOME"
 fi
