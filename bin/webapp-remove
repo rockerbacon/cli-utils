@@ -8,6 +8,7 @@ entry=$webapp_dir/${appid}.desktop
 
 if [ ! -f "$entry" ]; then
 	echo "ERROR: webapp not found" >&2
+	exit 1
 fi
 
 rm "$entry"
