@@ -1,0 +1,11 @@
+#nav-bar, #identity-box, #tabbrowser-tabs, #TabsToolbar {
+	visibility: collapse;
+}
+
+#nav-bar * {
+    visibility: visible !important;
+}
+
+#navigator-toolbox {
+    border-bottom: none !important;
+}

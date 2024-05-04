@@ -10,3 +10,6 @@ set -x
 cp "$root/bash_aliases" "$HOME/.bash_aliases"
 cp "$root/bin"/* "$HOME/.local/bin/"
 cp "$root/applications"/* "$HOME/.local/share/applications/"
+
+rm -rf "$HOME/.local/share/firefox-webapps"
+cp -r "$root/firefox-webapps" "$HOME/.local/share/firefox-webapps"
