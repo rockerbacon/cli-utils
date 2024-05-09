@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Exports environment variables defined in ~/.config/environment.d/*.conf.
+# Pay attention to the file format limitations when writing your configs.
+# spec at https://www.freedesktop.org/software/systemd/man/latest/environment.d.html
+
+if [ -d "$HOME/.config/environment.d" ]; then
+	for conf in "$HOME/.config/environment.d"/*.conf; do
+		while read line; do
+			if [ -n "$line" ] && [ "${line:0:1}" != "#" ]; then
+				var_name=${line%=*}
+				value=$(echo "$line" | sed -r -e "s/^.*=\s*['|\"]?//" -e "s/['\"]?\s*$//")
+				value=$(eval "echo $value")
+				export "$var_name=$value"
+			fi
+		done <"$conf"
+	done
+fi
