@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-swaymsg exit
+loginctl terminate-session "$XDG_SESSION_ID"
