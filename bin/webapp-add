@@ -14,7 +14,7 @@ if [ -f "$entry" ]; then
 	exit 1
 fi
 
-profile="$HOME/.mozilla/firefox/webapp-profile.$appid"
+profile="$HOME/.mozilla/firefox/webapps"
 if [ ! -d "$profile" ]; then
 	cp -r "$HOME/.local/share/firefox-webapps/base-profile" "$profile"
 fi
@@ -24,5 +24,7 @@ mkdir -p "$webapp_dir"
 cat <<EOF > "$entry"
 [Desktop Entry]
 Name=$appname
-Exec=firefox --name '$appid' --profile '$profile' --no-remote '$url'
+Exec=firefox --name '$appid' --profile '$profile' --new-window '$url'
 EOF
+
+echo "Created webapp in '$entry'"
