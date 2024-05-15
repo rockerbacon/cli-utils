@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+format="${1:---long}"
+
 webapp_dir="$HOME/.local/share/applications/webapps"
 
 restore_ifs=$IFS
@@ -12,12 +14,29 @@ if [ -z "$list" ]; then
 	exit 0
 fi
 
+case "$format" in
+	--long)
+		print-webapp() {
+			echo "appid: $1"
+			echo -e "\tname: $2"
+			echo -e "\turl: $3"
+		}
+	;;
+	--short)
+		print-webapp() {
+			echo "$1;$2;$3"
+		}
+	;;
+	*)
+		echo "ERROR: unknown format '$format'" >&2
+		exit 1
+	;;
+esac
+
 for entry in "${list[@]}"; do
 	id=${entry%.desktop}
 	contents=$(cat "$webapp_dir/$entry")
 	name=$(echo "$contents" | grep 'Name=' | sed 's/Name=//')
 	url=$(echo "$contents" | grep -oP "http(s)?://[^']+")
-	echo "appid: $id"
-	echo -e "\tname: ${name}"
-	echo -e "\turl: ${url}"
+	print-webapp "$id" "$name" "$url"
 done

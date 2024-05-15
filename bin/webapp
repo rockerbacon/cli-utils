@@ -13,4 +13,7 @@ case "$cmd" in
 	remove)
 		webapp-remove "$@"
 	;;
+	upgrade)
+		webapp-upgrade "$@"
+	;;
 esac

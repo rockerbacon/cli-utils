@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+appid=${1?Missing appid}
+
+info=$(webapp-list --short | grep --color=never "$appid")
+if [ -z "$info" ]; then
+	echo "ERROR: webapp not found" >&2
+	exit 1
+fi
+
+name=$(echo "$info" | awk -F ';' '{print $2}')
+url=$(echo "$info" | awk -F ';' '{print $3}')
+
+webapp remove "$appid"
+webapp add "$appid" "$name" "$url"

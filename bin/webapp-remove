@@ -12,3 +12,5 @@ if [ ! -f "$entry" ]; then
 fi
 
 rm "$entry"
+
+echo "Removed webapp at '$entry'"
