@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
 
-if command -v swaylock &>/dev/null && [ -n "$DISPLAY" ]; then
-	swaylock -f
-fi
-
+plock
 systemctl suspend -i

@@ -1,4 +1,4 @@
 [Desktop Entry]
 Type=Application
 Name=Lock
-Exec=swaylock -f
+Exec=plock

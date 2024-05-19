@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+if ! command -v swaylock &>/dev/null || [ -z "$DISPLAY" ]; then
+	exit 0
+fi
+
+conf_dir=${XDG_CONFIG_HOME-$HOME/.config}/swaylock
+extra_conf=$conf_dir/config.extra
+
+if [ ! -f "$extra_conf" ]; then
+	swaylock -f
+	exit 0
+fi
+
+outputs_info=$(swaymsg -t get_outputs | \
+	jq -r 'map(select(.active==true))' \
+)
+
+output_count=$(echo "$outputs_info" | \
+	jq -r 'length' \
+)
+
+if [ "$output_count" -ne "1" ]; then
+	swaylock -f
+	exit 0
+fi
+
+res=($(echo "$outputs_info" | jq -r '.[0].rect | .width, .height'))
+out_width=${res[0]}
+out_height=${res[1]}
+
+indicator_radius=50
+if [ -f "$conf_dir/config" ]; then
+	indicator_radius_line=$(grep 'indicator-radius' "$conf_dir/config")
+	if [ -n "$indicator_radius_line" ]; then
+		indicator_radius=${indicator_radius_line#*=}
+	fi
+fi
+
+indicator_posx=50
+indicator_posy=50
+while read -r line; do
+	label=${line%=*}
+	value=${line#*=}
+
+	case "$label" in
+		indicator-x-relative-position)
+			indicator_posx=$value
+		;;
+		indicator-y-relative-position)
+			indicator_posy=$value
+		;;
+		\#*)
+			# skip comments
+		;;
+		*)
+			echo "ERROR: unknown option '$label'" >&2
+			exit 1
+		;;
+	esac
+done < "$extra_conf"
+
+abs_indposx=$((out_width * indicator_posx / 100))
+abs_indposy=$((out_height * indicator_posy / 100))
+
+swaylock -f \
+	--indicator-x-position "$abs_indposx" \
+	--indicator-y-position "$abs_indposy"
