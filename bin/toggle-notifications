@@ -11,7 +11,9 @@ else
 	echo "Notifications enabled"
 fi
 
-notif_sock=${XDG_RUNTIME_DIR-/tmp}/notif-toggle.sock
-if [ -S "$notif_sock" ]; then
-	echo "$notif_enabled" | nc --send-only -uU "$notif_sock"
+bar_rundir=${XDG_RUNTIME_DIR-/tmp}/bacons-swaybar
+if [ -d "$bar_rundir" ]; then
+	find "$bar_rundir" -name '*.pid' | while read -r pid; do
+		kill -SIGUSR1 "$(cat "$pid")"
+	done
 fi
