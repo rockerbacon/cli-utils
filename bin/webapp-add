@@ -15,9 +15,7 @@ if [ -f "$entry" ]; then
 fi
 
 profile="$HOME/.mozilla/firefox/webapps"
-if [ ! -d "$profile" ]; then
-	cp -r "$HOME/.local/share/firefox-webapps/base-profile" "$profile"
-fi
+cp -Tr "$HOME/.local/share/firefox-webapps/base-profile" "$profile"
 
 mkdir -p "$webapp_dir"
 
