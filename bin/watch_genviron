@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+_genv_file="${XDG_RUNTIME_DIR-/tmp}/genv-$UID.sh"
+
+_genv_reload() {
+	flock -s 3
+	source "$_genv_file"
+	flock -u 3
+}
+
+trap _genv_reload USR1
+
+exec 3<>"$_genv_file"
+
+_genv_reload

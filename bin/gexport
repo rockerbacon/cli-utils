@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+
+import fcntl
+import logging
+import io
+import os
+import subprocess
+import sys
+
+_logger = logging.getLogger()
+
+def _load_genviron(file):
+    contents = file.read().decode("utf-8")
+
+    genviron = {}
+    for raw_ln in contents.split("\n"):
+        ln = raw_ln.strip()
+        if not ln or ln[0] == "#":
+            continue
+
+        parts = ln.split(" ")
+        if len(parts) < 2:
+            _logger.error("ERROR: invalid line in env file")
+            return None
+
+        var = parts[1]
+        parts = var.split("=")
+        if len(parts) < 2:
+            _logger.error("ERROR: invalid variable in env file")
+            return None
+
+        genviron[parts[0]] = parts[1]
+
+    return genviron
+
+def _put_genviron(file, genviron):
+    file.truncate(0)
+    file.seek(0)
+    for name, value in genviron.items():
+        ln = f"export {name}={value}\n"
+        file.write(ln.encode("utf-8"))
+
+def gexport(var):
+    parts = var.split("=")
+    name = parts[0].strip()
+
+    if not name:
+        _logger.error("ERROR: missing variable name")
+        return 1
+
+    if len(parts) > 1:
+        value = parts[1]
+    else:
+        value = os.environ.get(name, "")
+
+    rundir = os.environ.get(
+        "XDG_RUNTIME_DIR", "/tmp"
+    )
+    uid = os.getuid()
+    file_path = rundir + "/genv-" + str(uid) + ".sh"
+    fd = os.open(
+        file_path,
+        flags=os.O_CREAT | os.O_RDWR,
+        mode=0o600,
+    )
+    fcntl.flock(fd, fcntl.LOCK_EX)
+
+    status = 0
+    try:
+        file = io.FileIO(fd, mode="w+", closefd=False)
+        genviron = _load_genviron(file)
+        if genviron is not None:
+            genviron[name] = value
+            _put_genviron(file, genviron)
+        else:
+            status = 1
+    finally:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        os.close(fd)
+
+    subprocess.run(
+        ["fuser", "-k", "-USR1", file_path],
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+    )
+
+    return status
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        _logger.error("ERROR: Not enough arguments")
+        exit(1)
+    elif len(sys.argv) > 2:
+        _logger.error("ERROR: Too many arguments")
+        exit(1)
+
+    exit(gexport(sys.argv[1]))
